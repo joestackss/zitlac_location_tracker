@@ -19,16 +19,15 @@ class LocationTrackingProvider with ChangeNotifier {
     if (_isTracking) return;
 
     try {
-      // Request location permissions
+     
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         throw Exception('Location permissions are denied');
       }
 
-      // Initialize daily summary for today if not exists
+
       _initializeDailySummary();
 
-      // Start background location service
       await bg_location.BackgroundLocation.setAndroidNotification(
         title: "Location Tracking",
         message: "Tracking your location",
@@ -78,19 +77,19 @@ class LocationTrackingProvider with ChangeNotifier {
     final timeDelta = now.difference(_lastUpdateTime!);
     bool isInsideAnyLocation = false;
 
-    // Check each predefined location
+   
     for (var location in _predefinedLocations) {
       if (location.isPointInside(latitude, longitude)) {
         isInsideAnyLocation = true;
         _currentDailySummary?.addTimeInLocation(location.name, timeDelta);
-        print('Inside location: ${location.name}'); // Add debug logging
+        print('Inside location: ${location.name}'); 
       }
     }
 
-    // If not in any location, add to traveling time
+
     if (!isInsideAnyLocation) {
       _currentDailySummary?.addTravelingTime(timeDelta);
-      print('Traveling'); // Add debug logging
+      print('Traveling'); 
     }
 
     _lastUpdateTime = now;

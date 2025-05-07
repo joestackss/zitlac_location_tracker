@@ -7,7 +7,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 class SummaryScreen extends StatelessWidget {
   const SummaryScreen({super.key});
 
-  // Group summaries by date
   Map<String, List<DailySummary>> _groupSummariesByDate(List<DailySummary> summaries) {
     final grouped = <String, List<DailySummary>>{};
     for (var summary in summaries) {
@@ -35,12 +34,11 @@ class SummaryScreen extends StatelessWidget {
                 final currentSummary = provider.currentDailySummary;
                 final savedSummaries = box.values.toList();
                 
-                // Group all summaries by date
+              
                 final groupedSummaries = _groupSummariesByDate(
                   currentSummary != null ? [currentSummary, ...savedSummaries] : savedSummaries
                 );
 
-                // Sort dates in descending order
                 final dates = groupedSummaries.keys.toList()..sort((a, b) => b.compareTo(a));
 
                 if (dates.isEmpty) {

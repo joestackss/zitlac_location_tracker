@@ -15,16 +15,15 @@ class GeofenceLocation {
   final double longitude;
 
   @HiveField(3)
-  final double radius; // in meters
+  final double radius;
 
   const GeofenceLocation({
     required this.name,
     required this.latitude,
     required this.longitude,
-    this.radius = 50.0, // Default radius of 50 meters
+    this.radius = 50.0, 
   });
 
-  // Helper method to check if a point is within this location's geofence
   bool isPointInside(double lat, double lng) {
     final distance = Geolocator.distanceBetween(
       lat,
@@ -35,7 +34,6 @@ class GeofenceLocation {
     return distance <= radius;
   }
 
-  // Predefined locations
   static const home = GeofenceLocation(
     name: "Home",
     latitude: 37.7749,
@@ -50,7 +48,6 @@ class GeofenceLocation {
     radius: 50.0,
   );
 
-  // Get all predefined locations
   static List<GeofenceLocation> getPredefinedLocations() {
     return [home, office];
   }
