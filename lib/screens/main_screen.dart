@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../providers/location_tracking_provider.dart';
@@ -34,7 +35,7 @@ class MainScreen extends StatelessWidget {
 
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Location permissions are permanently denied, we cannot request permissions.'),
+        content: Text('Location permissions are permanently denied.'),
       ));
       return false;
     }
@@ -73,65 +74,90 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Location Tracker'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.location_searching),
-            onPressed: () => _getCurrentLocation(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.summarize),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SummaryScreen()),
-              );
-            },
-          ),
-        ],
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text(
+          'Location Tracker',
+          style: TextStyle(fontFamily: 'Barlow'),
+        ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.chart_bar_alt_fill),
+          onPressed: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(builder: (context) => const SummaryScreen()),
+            );
+          },
+        ),
       ),
-      body: Center(
+      child: SafeArea(
         child: Consumer<LocationTrackingProvider>(
           builder: (context, provider, child) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  provider.isTracking ? 'Currently Tracking' : 'Not Tracking',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      if (provider.isTracking) {
-                        await provider.stopTracking();
-                      } else {
-                        final hasPermission = await _handleLocationPermission(context);
-                        if (hasPermission) {
-                          await provider.startTracking();
-                        }
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(e.toString())),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: provider.isTracking
+                          ? CupertinoColors.activeGreen.withOpacity(0.1)
+                          : CupertinoColors.systemGrey5,
+                    ),
+                    child: Center(
+                      child: Text(
+                        provider.isTracking ? 'Tracking Active' : 'Not Tracking',
+                        style: TextStyle(
+                          fontFamily: 'Barlow',
+                          fontSize: 18,
+                          color: provider.isTracking
+                              ? CupertinoColors.activeGreen
+                              : CupertinoColors.systemGrey,
+                        ),
+                      ),
                     ),
                   ),
-                  child: Text(
-                    provider.isTracking ? 'Clock Out' : 'Clock In',
-                    style: const TextStyle(fontSize: 20),
+                  const SizedBox(height: 40),
+                  CupertinoButton.filled(
+                    onPressed: () async {
+                      try {
+                        if (provider.isTracking) {
+                          await provider.stopTracking();
+                        } else {
+                          final hasPermission = await _handleLocationPermission(context);
+                          if (hasPermission) {
+                            await provider.startTracking();
+                          }
+                        }
+                      } catch (e) {
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (context) => CupertinoAlertDialog(
+                            title: const Text('Error'),
+                            content: Text(e.toString()),
+                            actions: [
+                              CupertinoDialogAction(
+                                child: const Text('OK'),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                    child: Text(
+                      provider.isTracking ? 'Clock Out' : 'Clock In',
+                      style: const TextStyle(
+                        fontFamily: 'Barlow',
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
