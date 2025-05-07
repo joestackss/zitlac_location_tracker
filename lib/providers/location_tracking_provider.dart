@@ -11,21 +11,22 @@ class LocationTrackingProvider with ChangeNotifier {
   DailySummary? _currentDailySummary;
   final List<GeofenceLocation> _predefinedLocations = [
     const GeofenceLocation(
-      name: "Home",
-      latitude: 37.7749,
-      longitude: -122.4194,
-      radius: 50.0, // 50 meter radius as specified in the brief
+      name: "Current Location",
+      latitude: 0.0,  // This will be updated with user's location
+      longitude: 0.0,
+      radius: 50.0,
     ),
     const GeofenceLocation(
-      name: "Office",
-      latitude: 37.7858,
-      longitude: -122.4364,
-      radius: 50.0, // 50 meter radius as specified in the brief
+      name: "Test Location",
+      latitude: 0.0001, // Very close to current location for easy testing
+      longitude: 0.0001,
+      radius: 50.0,
     ),
   ];
 
   bool get isTracking => _isTracking;
   DailySummary? get currentDailySummary => _currentDailySummary;
+  List<GeofenceLocation> get predefinedLocations => _predefinedLocations;
 
   Future<void> startTracking() async {
     if (_isTracking) return;
@@ -122,5 +123,16 @@ class LocationTrackingProvider with ChangeNotifier {
     } catch (e) {
       print('Error saving daily summary: $e');
     }
+  }
+
+  Future<void> updateCurrentLocation(double latitude, double longitude) {
+    _predefinedLocations[0] = GeofenceLocation(
+      name: "Current Location",
+      latitude: latitude,
+      longitude: longitude,
+      radius: 50.0,
+    );
+    notifyListeners();
+    return Future.value();
   }
 } 
