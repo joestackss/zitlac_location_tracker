@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'models/daily_summary.dart';
 import 'models/location.dart';
+import 'models/duration_adapter.dart';
 import 'providers/location_tracking_provider.dart';
 import 'screens/main_screen.dart';
 
@@ -15,6 +16,7 @@ void main() async {
   // Register Hive adapters
   Hive.registerAdapter(GeofenceLocationAdapter());
   Hive.registerAdapter(DailySummaryAdapter());
+  Hive.registerAdapter(DurationAdapter());
   
   // Open Hive box
   await Hive.openBox<DailySummary>('daily_summaries');
