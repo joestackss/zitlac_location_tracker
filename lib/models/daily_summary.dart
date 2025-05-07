@@ -14,12 +14,17 @@ class DailySummary {
   @HiveField(2)
   Duration travelingTime;
 
+  @HiveField(3)
+  final DateTime sessionStartTime;
+
   DailySummary({
     required this.date,
     Map<String, Duration>? timeSpentByLocation,
     Duration? travelingTime,
+    DateTime? sessionStartTime,
   })  : timeSpentByLocation = timeSpentByLocation ?? {},
-        travelingTime = travelingTime ?? Duration.zero;
+        travelingTime = travelingTime ?? Duration.zero,
+        sessionStartTime = sessionStartTime ?? DateTime.now();
 
   // Add time spent in a location
   void addTimeInLocation(String locationName, Duration duration) {
@@ -51,5 +56,15 @@ class DailySummary {
   // Get date as string
   String getFormattedDate() {
     return DateFormat('yyyy-MM-dd').format(date);
+  }
+
+  // Get session start time as string
+  String getFormattedSessionStartTime() {
+    return DateFormat('HH:mm:ss').format(sessionStartTime);
+  }
+
+  // Get storage key (unique for each session)
+  String getStorageKey() {
+    return '${getFormattedDate()}_${DateFormat('HHmmss').format(sessionStartTime)}';
   }
 } 

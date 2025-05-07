@@ -9,20 +9,7 @@ class LocationTrackingProvider with ChangeNotifier {
   bool _isTracking = false;
   DateTime? _lastUpdateTime;
   DailySummary? _currentDailySummary;
-  final List<GeofenceLocation> _predefinedLocations = [
-    const GeofenceLocation(
-      name: "Current Location",
-      latitude: 0.0,  // This will be updated with user's location
-      longitude: 0.0,
-      radius: 50.0,
-    ),
-    const GeofenceLocation(
-      name: "Test Location",
-      latitude: 0.0001, // Very close to current location for easy testing
-      longitude: 0.0001,
-      radius: 50.0,
-    ),
-  ];
+  final List<GeofenceLocation> _predefinedLocations = GeofenceLocation.getPredefinedLocations();
 
   bool get isTracking => _isTracking;
   DailySummary? get currentDailySummary => _currentDailySummary;
@@ -80,6 +67,7 @@ class LocationTrackingProvider with ChangeNotifier {
     final today = DateTime.now();
     _currentDailySummary = DailySummary(
       date: DateTime(today.year, today.month, today.day),
+      sessionStartTime: today,
     );
   }
 
@@ -92,22 +80,17 @@ class LocationTrackingProvider with ChangeNotifier {
 
     // Check each predefined location
     for (var location in _predefinedLocations) {
-      final distance = Geolocator.distanceBetween(
-        latitude,
-        longitude,
-        location.latitude,
-        location.longitude,
-      );
-
-      if (distance <= location.radius) {
+      if (location.isPointInside(latitude, longitude)) {
         isInsideAnyLocation = true;
         _currentDailySummary?.addTimeInLocation(location.name, timeDelta);
+        print('Inside location: ${location.name}'); // Add debug logging
       }
     }
 
     // If not in any location, add to traveling time
     if (!isInsideAnyLocation) {
       _currentDailySummary?.addTravelingTime(timeDelta);
+      print('Traveling'); // Add debug logging
     }
 
     _lastUpdateTime = now;
@@ -119,9 +102,10 @@ class LocationTrackingProvider with ChangeNotifier {
 
     try {
       final box = await Hive.openBox<DailySummary>('daily_summaries');
-      await box.put(_currentDailySummary!.getFormattedDate(), _currentDailySummary!);
+      await box.put(_currentDailySummary!.getStorageKey(), _currentDailySummary!);
     } catch (e) {
       print('Error saving daily summary: $e');
+      rethrow;
     }
   }
 

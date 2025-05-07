@@ -19,7 +19,7 @@ class MainScreen extends StatelessWidget {
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: const Text('Location Services Disabled'),
-            content: const Text('Please enable location services in your device settings.'),
+            content: const Text('Please enable location services to use this app.'),
             actions: [
               CupertinoDialogAction(
                 child: const Text('OK'),
@@ -40,8 +40,8 @@ class MainScreen extends StatelessWidget {
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(
-              title: const Text('Location Permission'),
-              content: const Text('Location permissions are required for tracking.'),
+              title: const Text('Location Permission Denied'),
+              content: const Text('Location permissions are required to use this app.'),
               actions: [
                 CupertinoDialogAction(
                   child: const Text('OK'),
@@ -60,7 +60,7 @@ class MainScreen extends StatelessWidget {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: const Text('Location Permission'),
+            title: const Text('Location Permission Denied'),
             content: const Text('Location permissions are permanently denied. Please enable them in settings.'),
             actions: [
               CupertinoDialogAction(
@@ -91,7 +91,9 @@ class MainScreen extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              CupertinoPageRoute(builder: (context) => const SummaryScreen()),
+              CupertinoPageRoute(
+                builder: (context) => const SummaryScreen(),
+              ),
             );
           },
         ),
@@ -99,58 +101,20 @@ class MainScreen extends StatelessWidget {
       child: SafeArea(
         child: Consumer<LocationTrackingProvider>(
           builder: (context, provider, child) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: provider.isTracking
-                          ? CupertinoColors.activeGreen.withOpacity(0.1)
-                          : CupertinoColors.systemGrey5,
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            provider.isTracking ? 'Tracking Active' : 'Not Tracking',
-                            style: TextStyle(
-                              fontFamily: 'Barlow',
-                              fontSize: 18,
-                              color: provider.isTracking
-                                  ? CupertinoColors.activeGreen
-                                  : CupertinoColors.systemGrey,
-                            ),
-                          ),
-                          if (provider.isTracking) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              'Test near:',
-                              style: TextStyle(
-                                fontFamily: 'Barlow',
-                                fontSize: 14,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                            ),
-                            Text(
-                              provider.predefinedLocations[1].name,
-                              style: TextStyle(
-                                fontFamily: 'Barlow',
-                                fontSize: 14,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
+                  const Spacer(),
+                  Text(
+                    provider.isTracking ? 'Currently Tracking' : 'Not Tracking',
+                    style: const TextStyle(
+                      fontFamily: 'Barlow',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
                   CupertinoButton.filled(
                     onPressed: () async {
                       try {
@@ -159,13 +123,6 @@ class MainScreen extends StatelessWidget {
                         } else {
                           final hasPermission = await _handleLocationPermission(context);
                           if (hasPermission) {
-                            final position = await Geolocator.getCurrentPosition(
-                              desiredAccuracy: LocationAccuracy.high
-                            );
-                            await provider.updateCurrentLocation(
-                              position.latitude,
-                              position.longitude,
-                            );
                             await provider.startTracking();
                           }
                         }
@@ -195,16 +152,7 @@ class MainScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'For testing: Move slightly from your current location',
-                    style: TextStyle(
-                      fontFamily: 'Barlow',
-                      fontSize: 14,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                  const Spacer(),
                 ],
               ),
             );

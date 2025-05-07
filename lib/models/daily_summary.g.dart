@@ -20,19 +20,22 @@ class DailySummaryAdapter extends TypeAdapter<DailySummary> {
       date: fields[0] as DateTime,
       timeSpentByLocation: (fields[1] as Map?)?.cast<String, Duration>(),
       travelingTime: fields[2] as Duration?,
+      sessionStartTime: fields[3] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, DailySummary obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
       ..write(obj.timeSpentByLocation)
       ..writeByte(2)
-      ..write(obj.travelingTime);
+      ..write(obj.travelingTime)
+      ..writeByte(3)
+      ..write(obj.sessionStartTime);
   }
 
   @override
